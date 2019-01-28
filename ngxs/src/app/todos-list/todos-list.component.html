@@ -1,0 +1,18 @@
+<ul>
+  <ng-container *ngFor="let todo of todos$ | async">
+    <li>
+      <input type="checkbox" [checked]="todo.done" (change)="changeTodoDone(todo.id)"/>
+      <p>{{todo.text}}</p>
+    </li>
+  </ng-container>
+</ul>
+<form [formGroup]="todoForm" (ngSubmit)="createTodo()">
+  <input
+    [formGroup]="todoForm"
+    type="text"
+    id="todo-text-input"
+    placeholder="Enter your todo"
+    formControlName="todo"
+  >
+  <button type="submit">Create Todo</button>
+</form>
