@@ -6,6 +6,8 @@ import { StoreModule } from '@ngrx/store';
 import { todosReducer } from './todo.reducer';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TodosListComponent } from './todos-list/todos-list.component';
+import { EffectsModule } from '@ngrx/effects';
+import { TodoEffects } from './todo.effects';
 
 @NgModule({
   declarations: [
@@ -15,6 +17,7 @@ import { TodosListComponent } from './todos-list/todos-list.component';
   imports: [
     BrowserModule,
     StoreModule.forRoot({todos: todosReducer}),
+    EffectsModule.forRoot([TodoEffects]),
     ReactiveFormsModule,
   ],
   providers: [],

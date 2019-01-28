@@ -6,6 +6,7 @@
     </li>
   </ng-container>
 </ul>
+<p *ngIf="loading$ | async">Loading todos</p>
 <form [formGroup]="todoForm" (ngSubmit)="createTodo()">
   <input
     [formGroup]="todoForm"

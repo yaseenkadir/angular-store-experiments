@@ -4,43 +4,71 @@ import * as TodoActions from './todo.action';
 import { ActionTypes } from './todo.action';
 import { ActionReducer } from '@ngrx/store';
 
-const initialState: Todo[] = [
-  {id: 1, text: 'foobar', done: false},
-  {id: 2, text: 'foobarbaz', done: false},
-  {id: 3, text: 'three', done: false},
-];
+export interface TodosState {
+  todos: Todo[];
+  loading: boolean;
+}
 
-export const todosReducer: ActionReducer<Todo[]> = (
-  state: Todo[] = initialState,
-  action: TodoActions.Actions
+const initialState: TodosState = {
+  loading: false,
+  todos: []
+};
+
+export const todosReducer: ActionReducer<TodosState> = (
+  state: TodosState = initialState,
+  action: TodoActions.TodoActions
 ) => {
+  console.info(`Action ${JSON.stringify(action)}`);
   switch (action.type) {
     case ActionTypes.CREATE_TODO:
       return createTodo(state, action);
     case ActionTypes.CHANGE_TODO_STATE:
       return changeTodoState(state, action);
+    case ActionTypes.LOAD_TODOS:
+      return loadTodos(state, action);
+    case ActionTypes.LOADED_TODOS:
+      return loadedTodos(state, action);
     default:
+      console.info(`Unhandled action ${JSON.stringify(action)}`);
       return state;
   }
 };
 
-function createTodo(state: Todo[], action: TodoActions.CreateTodo) {
-  const todo: Todo = {
-    id: Date.now(),
-    text: action.payload.text,
-    done: false,
-  };
-  console.info(`Creating ${JSON.stringify(todo)}`);
+function createTodo(state: TodosState, action: TodoActions.CreateTodo): TodosState {
+  console.info(`Creating ${JSON.stringify(action.payload.todo)}`);
 
-  const copy = state.slice();
-  copy.push(todo);
-  return copy;
+  const copy = state.todos.slice();
+  copy.push(action.payload.todo);
+  return {
+    ...state,
+    todos: copy,
+  };
 }
 
-function changeTodoState(state: Todo[], action: TodoActions.ChangeTodoState) {
-  const copy = state.slice();
+function changeTodoState(state: TodosState, action: TodoActions.ChangeTodoState): TodosState {
+  const copy = state.todos.slice();
   const todo = copy.find((t => t.id === action.payload.id));
   console.info(`Changing state of todo ${todo.id} from ${todo.done} to ${!todo.done}`);
   todo.done = !todo.done;
-  return copy;
+  return {
+    ...state,
+    todos: copy,
+  };
+}
+
+function loadTodos(state: TodosState, action: TodoActions.LoadTodos): TodosState {
+  console.info('loading todos');
+  return {
+    ...state,
+    loading: true,
+  };
+}
+
+function loadedTodos(state: TodosState, action: TodoActions.LoadedTodos): TodosState {
+  console.info('loaded todos');
+  return {
+    ...state,
+    loading: false,
+    todos: action.payload.todos,
+  };
 }

@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Todo } from '../models/todo';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { select, Store } from '@ngrx/store';
-import { ChangeTodoState, CreateTodo } from '../todo.action';
+import { Store } from '@ngrx/store';
+import { ChangeTodoState, CreateTodo, LoadTodos } from '../todo.action';
+import { TodosState } from '../todo.reducer';
 
 
 @Component({
@@ -12,11 +13,12 @@ import { ChangeTodoState, CreateTodo } from '../todo.action';
   styleUrls: ['./todos-list.component.css']
 })
 export class TodosListComponent implements OnInit {
-  todos$: Observable<Todo[]> = this.store.pipe(select('todos'));
+  todos$: Observable<Todo[]> = this.store.select(state => state.todos.todos);
+  loading$: Observable<boolean> = this.store.select(state => state.todos.loading);
 
   todoForm: FormGroup;
 
-  constructor(private store: Store<{ todos: Todo[] }>,
+  constructor(private store: Store<{ todos: TodosState }>,
               private fb: FormBuilder) {
   }
 
@@ -24,6 +26,8 @@ export class TodosListComponent implements OnInit {
     this.todoForm = this.fb.group({
       todo: []
     });
+
+    this.store.dispatch(new LoadTodos());
   }
 
   changeTodoDone(todoId: number) {
@@ -32,6 +36,12 @@ export class TodosListComponent implements OnInit {
 
   createTodo() {
     const val = this.todoForm.controls.todo.value;
-    this.store.dispatch(new CreateTodo({text: val}));
+    this.todoForm.controls.todo.setValue('');
+    const todo: Todo = {
+      id: Date.now(),
+      text: val,
+      done: false,
+    };
+    this.store.dispatch(new CreateTodo({todo: todo}));
   }
 }
